@@ -101,17 +101,6 @@ watch(searchQuery, (nuevoValor) => {
     </div>
 </template>
 
-<style scoped>
-.container { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif; }
-h1 { text-align: center; color: #333; }
-.search-container { display: flex; justify-content: center; margin-bottom: 20px; }
-.search-box { width: 100%; max-width: 400px; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px; }
-.status-message { text-align: center; font-size: 18px; margin: 40px 0; }
-.error { color: red; } .loading { color: #0066cc; } .empty { color: #666; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
-.card { border: 1px solid #ddd; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); background: white; }
-.flag { width: 100%; height: 150px; object-fit: cover; border-bottom: 1px solid #ddd; }
-.card-info { padding: 15px; }
-.card-info h2 { margin: 0 0 10px 0; font-size: 20px; }
-.card-info p { margin: 5px 0; color: #555; }
+<style>
+@import './style.css';
 </style>
