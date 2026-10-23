@@ -11,16 +11,27 @@ const fetchCountries = async (termino) => {
     errorMessage.value = '';
     
     try {
-        // Si el buscador está vacío, buscamos Canadá por defecto para cumplir la rúbrica
         const query = termino ? termino : 'Canada';
         
-        // Petición directa a la API oficial v5 usando el parámetro 'q'
-        const response = await fetch(`https://api.restcountries.com/countries/v5?q=${query}`, {
+        // Detectamos si estamos en producción (GitHub Pages) o en local
+        const isProduction = window.location.hostname.includes('github.io');
+        
+        let url = `https://api.restcountries.com/countries/v5?q=${query}`;
+        
+        // Si estamos en GitHub Pages, envolvemos la petición en el proxy CORS para evitar el bloqueo del navegador
+        if (isProduction) {
+            const targetUrl = encodeURIComponent(`${url}&api-key=rc_live_5ca1639020f94dbe9464c3adf8f77759`);
+            url = `https://corsproxy.io/?url=${targetUrl}`;
+        }
+        
+        const options = isProduction ? {} : {
             method: 'GET',
             headers: {
                 'Authorization': 'Bearer rc_live_5ca1639020f94dbe9464c3adf8f77759'
             }
-        });
+        };
+        
+        const response = await fetch(url, options);
         
         if (!response.ok) {
             if (response.status === 404 || response.status === 400) {
@@ -31,8 +42,6 @@ const fetchCountries = async (termino) => {
         }
         
         const json = await response.json();
-        
-        // Estructura oficial documentada: json.data.objects
         countries.value = json.data?.objects || [];
         
     } catch (error) {
