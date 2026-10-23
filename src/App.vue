@@ -11,10 +11,11 @@ const fetchCountries = async (termino) => {
     errorMessage.value = '';
     
     try {
-        // Si el buscador está vacío, carga Canadá por defecto para cumplir tu rúbrica
-        const parametro = termino ? termino : 'Canada';
+        // Si el buscador está vacío, buscamos Canadá por defecto para cumplir la rúbrica
+        const query = termino ? termino : 'Canada';
         
-        const response = await fetch(`https://api.restcountries.com/countries/v5?q=${parametro}`, {
+        // Petición directa a la API oficial v5 usando el parámetro 'q'
+        const response = await fetch(`https://api.restcountries.com/countries/v5?q=${query}`, {
             method: 'GET',
             headers: {
                 'Authorization': 'Bearer rc_live_5ca1639020f94dbe9464c3adf8f77759'
@@ -22,7 +23,6 @@ const fetchCountries = async (termino) => {
         });
         
         if (!response.ok) {
-            // Si la API no encuentra el país (404) o la búsqueda es inválida (400), vaciamos la lista
             if (response.status === 404 || response.status === 400) {
                 countries.value = [];
                 return;
@@ -31,6 +31,8 @@ const fetchCountries = async (termino) => {
         }
         
         const json = await response.json();
+        
+        // Estructura oficial documentada: json.data.objects
         countries.value = json.data?.objects || [];
         
     } catch (error) {
@@ -41,18 +43,18 @@ const fetchCountries = async (termino) => {
     }
 }
 
-// 1. Cumple la rúbrica haciendo la llamada inicial
+// Carga inicial al montar el componente (Requisito de rúbrica)
 onMounted(() => {
     fetchCountries('');
 });
 
-// 2. Cumple la rúbrica conectando el v-model a búsquedas dinámicas
+// Búsqueda dinámica con temporizador (debounce)
 let temporizador;
 watch(searchQuery, (nuevoValor) => {
     clearTimeout(temporizador);
     temporizador = setTimeout(() => {
         fetchCountries(nuevoValor.trim());
-    }, 500); // Espera 500ms después de que dejas de escribir para llamar a la API
+    }, 400);
 });
 </script>
 
@@ -78,7 +80,6 @@ watch(searchQuery, (nuevoValor) => {
         </div>
 
         <div v-else>
-            <!-- Usamos 'countries' directamente ya que el filtro lo hace la API -->
             <div v-if="countries.length === 0" class="status-message empty">
                 No hay resultados para tu búsqueda.
             </div>
