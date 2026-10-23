@@ -12,24 +12,11 @@ const fetchCountries = async (termino) => {
     
     try {
         const query = termino ? termino : 'Canada';
-        const isProduction = window.location.hostname.includes('github.io');
         
-        let endpoint = `https://api.restcountries.com/countries/v5?q=${query}`;
-        let options = {
-            method: 'GET',
-            headers: {
-                'Authorization': 'Bearer rc_live_5ca1639020f94dbe9464c3adf8f77759'
-            }
-        };
-
-        // Si estamos en GitHub Pages, envolvemos la petición para evitar el bloqueo del dominio compartido
-        if (isProduction) {
-            const target = encodeURIComponent(`${endpoint}&api-key=rc_live_5ca1639020f94dbe9464c3adf8f77759`);
-            endpoint = `https://api.allorigins.win/raw?url=${target}`;
-            options = {}; // AllOrigins no requiere headers complejos en el cliente
-        }
+        // Enviamos la clave directamente en la URL para evitar el bloqueo de Headers en GitHub Pages
+        const url = `https://api.restcountries.com/countries/v5?q=${query}&api-key=rc_live_5ca1639020f94dbe9464c3adf8f77759`;
         
-        const response = await fetch(endpoint, options);
+        const response = await fetch(url);
         
         if (!response.ok) {
             if (response.status === 404 || response.status === 400) {
@@ -40,9 +27,7 @@ const fetchCountries = async (termino) => {
         }
         
         const json = await response.json();
-        
-        // Estructura compatible tanto con llamada directa como con el proxy
-        countries.value = json.data?.objects || json.objects || [];
+        countries.value = json.data?.objects || [];
         
     } catch (error) {
         errorMessage.value = 'No fue posible obtener los datos de la API';
@@ -51,7 +36,6 @@ const fetchCountries = async (termino) => {
         isLoading.value = false;
     }
 }
-
 // Carga inicial al montar el componente (Requisito de rúbrica)
 onMounted(() => {
     fetchCountries('');
