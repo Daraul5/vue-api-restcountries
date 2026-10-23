@@ -35,3 +35,79 @@ h1 {
     outline: none;
     transition: all 0.3s ease;
 }
+
+.search-box:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+}
+
+.status-message {
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin: 60px 0;
+}
+
+.error {
+    color: #ef4444;
+}
+
+.loading {
+    color: #3b82f6;
+}
+
+.empty {
+    color: #64748b;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 24px;
+}
+
+.card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 20px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+}
+
+.flag {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.card-info {
+    padding: 20px;
+}
+
+.card-info h2 {
+    margin: 0 0 12px 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #0f172a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-info p {
+    margin: 6px 0;
+    font-size: 0.925rem;
+    color: #475569;
+}
+
+.card-info p strong {
+    color: #1e293b;
+    font-weight: 600;
+}
