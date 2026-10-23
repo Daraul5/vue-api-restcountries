@@ -77,9 +77,10 @@ h1 {
 .search-icon {
     position: absolute;
     left: 18px;
-    font-size: 0.95rem;
+    width: 17px;
+    height: 17px;
+    stroke: #64748b;
     pointer-events: none;
-    opacity: 0.6;
 }
 
 .search-box {
@@ -112,7 +113,8 @@ h1 {
     color: #64748b;
     border: none;
     border-radius: 50%;
-    font-size: 0.75rem;
+    font-size: 1.1rem;
+    line-height: 1;
     cursor: pointer;
     transition: background-color 0.2s, color 0.2s;
 }
@@ -168,12 +170,6 @@ h1 {
     padding: 24px;
     max-width: 440px;
     color: #991b1b;
-}
-
-.status-icon {
-    font-size: 2rem;
-    display: block;
-    margin-bottom: 8px;
 }
 
 .retry-btn {

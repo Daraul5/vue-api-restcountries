@@ -59,14 +59,17 @@ const clearSearch = () => {
 <template>
     <div class="container">
         <header class="header">
-            <span class="header-badge">🌍 Directorio Mundial</span>
+            <span class="header-badge">Directorio Global</span>
             <h1>Explorador de Países</h1>
             <p class="subtitle">Consulta información geográfica y demográfica en tiempo real</p>
         </header>
         
         <div class="search-section">
             <div class="search-wrapper">
-                <span class="search-icon" aria-hidden="true">🔍</span>
+                <svg class="search-icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
                 <input
                     type="text"
                     v-model="searchQuery"
@@ -82,7 +85,7 @@ const clearSearch = () => {
                     title="Limpiar búsqueda"
                     aria-label="Limpiar búsqueda"
                 >
-                    ✕
+                    &times;
                 </button>
             </div>
             
@@ -99,7 +102,6 @@ const clearSearch = () => {
 
         <!-- Estado de error -->
         <div v-else-if="errorMessage" class="status-message error-box">
-            <span class="status-icon" aria-hidden="true">⚠️</span>
             <p>{{ errorMessage }}</p>
             <button @click="fetchCountries(searchQuery.trim())" type="button" class="retry-btn">
                 Reintentar
@@ -109,7 +111,6 @@ const clearSearch = () => {
         <!-- Resultados / Estado vacío -->
         <div v-else>
             <div v-if="countries.length === 0" class="status-message empty-box">
-                <span class="status-icon" aria-hidden="true">🔎</span>
                 <h3>Sin resultados</h3>
                 <p>No se encontraron países que coincidan con "{{ searchQuery }}".</p>
             </div>
@@ -136,15 +137,15 @@ const clearSearch = () => {
                         <h2>{{ country.names?.common }}</h2> 
                         <ul class="country-details">
                             <li>
-                                <span class="detail-label">🏛️ Capital</span>
+                                <span class="detail-label">Capital</span>
                                 <span class="detail-value">{{ country.capitals?.[0]?.name || 'No tiene' }}</span>
                             </li>
                             <li>
-                                <span class="detail-label">🌐 Región</span>
+                                <span class="detail-label">Región</span>
                                 <span class="detail-value">{{ country.region || 'Desconocida' }}</span>
                             </li>
                             <li>
-                                <span class="detail-label">👥 Población</span>
+                                <span class="detail-label">Población</span>
                                 <span class="detail-value">{{ country.population ? country.population.toLocaleString() : 'Desconocida' }}</span>
                             </li>
                         </ul>
