@@ -6,20 +6,23 @@ const searchQuery = ref('');
 const isLoading = ref(true);
 const errorMessage = ref('');
 
-const fetchCountries = async () => {
+const fetchCountries = async (termino) => {
     isLoading.value = true;
     errorMessage.value = '';
     
     try {
-        const termino = searchQuery.value.trim() ? searchQuery.value.trim() : 'Canada';
+        // Si el buscador está vacío, carga Canadá por defecto para cumplir tu rúbrica
+        const parametro = termino ? termino : 'Canada';
         
-        // Construimos la URL objetivo de la API
-        const targetUrl = encodeURIComponent(`https://api.restcountries.com/countries/v5?q=${termino}&api-key=rc_live_5ca1639020f94dbe9464c3adf8f77759`);
-        
-        // Usamos el proxy CORS para evitar el bloqueo del navegador en GitHub Pages
-        const response = await fetch(`https://corsproxy.io/?url=${targetUrl}`);
+        const response = await fetch(`https://api.restcountries.com/countries/v5?q=${parametro}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer rc_live_5ca1639020f94dbe9464c3adf8f77759'
+            }
+        });
         
         if (!response.ok) {
+            // Si la API no encuentra el país (404) o la búsqueda es inválida (400), vaciamos la lista
             if (response.status === 404 || response.status === 400) {
                 countries.value = [];
                 return;
@@ -37,6 +40,7 @@ const fetchCountries = async () => {
         isLoading.value = false;
     }
 }
+
 // 1. Cumple la rúbrica haciendo la llamada inicial
 onMounted(() => {
     fetchCountries('');
