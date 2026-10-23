@@ -37,6 +37,7 @@ const filterCountries = computed(() => {
 <template>
     <div class="container">
         <h1>Explorador de Paises</h1>
+        
         <div class="search-container">
             <input
                 type="text"
@@ -45,25 +46,37 @@ const filterCountries = computed(() => {
                 class="search-box"
             />
         </div>
-        <div v-if="isLoading" class="status-message error">
+
+        <!-- 1. Mostrar carga -->
+        <div v-if="isLoading" class="status-message loading">
+            ⏳ Cargando países...
+        </div>
+
+        <!-- Mostrar error si ocurre uno -->
+        <div v-else-if="errorMessage" class="status-message error">
             {{ errorMessage }}
         </div>
+
+        <!-- 2. Mostrar contenido solo cuando ya cargó y no hay error -->
         <div v-else>
             <div v-if="filterCountries.length === 0" class="status-message empty">
-                No hay resultado para tu busqueda
+                No hay resultados para tu búsqueda
             </div>
-        </div>
-        <div class="grid">
-            <div
-                v-for="country in filterCountries"
-                :key="country.cca3"
-                class="card"
-            >
-                <img :src="country.flags.svg" :alt="`Bandera de ${country.name.common}`" class="flag" />
-                <div class="card-info">
-                    <p><strong>Capital:</strong> {{ country.capital ? country.capital[0] : 'No tiene' }}</p>
-                    <p><strong>Región:</strong> {{ country.region }}</p>
-                    <p><strong>Población:</strong> {{ country.population.toLocaleString() }}</p>
+
+            <div class="grid">
+                <div
+                    v-for="country in filterCountries"
+                    :key="country.cca3"
+                    class="card"
+                >
+                    <img :src="country.flags.svg" :alt="`Bandera de ${country.name.common}`" class="flag" />
+                    <div class="card-info">
+                        <!-- 3. Se agregó el nombre del país que faltaba -->
+                        <h2>{{ country.name.common }}</h2> 
+                        <p><strong>Capital:</strong> {{ country.capital ? country.capital[0] : 'No tiene' }}</p>
+                        <p><strong>Región:</strong> {{ country.region }}</p>
+                        <p><strong>Población:</strong> {{ country.population.toLocaleString() }}</p>
+                    </div>
                 </div>
             </div>
         </div>
