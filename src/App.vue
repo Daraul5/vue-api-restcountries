@@ -8,7 +8,6 @@ const errorMessage = ref('');
 
 const fetchCountries = async () => {
     try {
-        // 1. Usando EXACTAMENTE la API solicitada en la rúbrica
         const response = await fetch('https://api.restcountries.com/countries/v5?q=Canada&api-key=rc_live_demo&pretty=1');
         
         if (!response.ok) {
@@ -17,8 +16,6 @@ const fetchCountries = async () => {
         
         const data = await response.json();
         
-        // La API puede devolver un arreglo o un objeto dependiendo de la búsqueda. 
-        // Esto asegura que siempre lo guardemos como un arreglo para el v-for.
         countries.value = Array.isArray(data) ? data : (data.data || [data]);
         
     } catch (error) {
