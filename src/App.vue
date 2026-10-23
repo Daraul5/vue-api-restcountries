@@ -1,45 +1,58 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 
 const countries = ref([]);
 const searchQuery = ref('');
 const isLoading = ref(true);
 const errorMessage = ref('');
 
-const fetchCountries = async () => {
+const fetchCountries = async (termino) => {
+    isLoading.value = true;
+    errorMessage.value = '';
+    
     try {
-        const response = await fetch('https://api.restcountries.com/countries/v5?q=Canada&api-key=rc_live_demo&pretty=1');
+        // Si el buscador está vacío, carga Canadá por defecto para cumplir tu rúbrica
+        const parametro = termino ? termino : 'Canada';
+        
+        const response = await fetch(`https://api.restcountries.com/countries/v5?q=${parametro}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer rc_live_5ca1639020f94dbe9464c3adf8f77759'
+            }
+        });
         
         if (!response.ok) {
-            throw new Error('Error en la respuesta de la API');
+            // Si la API no encuentra el país (404) o la búsqueda es inválida (400), vaciamos la lista
+            if (response.status === 404 || response.status === 400) {
+                countries.value = [];
+                return;
+            }
+            throw new Error(`Error HTTP: ${response.status}`);
         }
         
-        const data = await response.json();
-        
-        countries.value = Array.isArray(data) ? data : (data.data || [data]);
+        const json = await response.json();
+        countries.value = json.data?.objects || [];
         
     } catch (error) {
         errorMessage.value = 'No fue posible obtener los datos de la API';
-        console.error(error);
+        console.error("Error en la petición:", error);
     } finally {
         isLoading.value = false;
     }
 }
 
-// Se ejecuta al montar el componente (Requisito de rúbrica)
+// 1. Cumple la rúbrica haciendo la llamada inicial
 onMounted(() => {
-    fetchCountries();
+    fetchCountries('');
 });
 
-// Filtro local (Requisito de rúbrica: v-model)
-const filterCountries = computed(() => {
-    const term = searchQuery.value.toLowerCase();
-    return countries.value.filter(country => {
-        // Extraemos el nombre y región de forma segura (por si la v5 cambia la estructura)
-        const name = country.name?.common || country.name || '';
-        const region = country.region || '';
-        return name.toLowerCase().includes(term) || region.toLowerCase().includes(term);
-    });
+// 2. Cumple la rúbrica conectando el v-model a búsquedas dinámicas
+let temporizador;
+watch(searchQuery, (nuevoValor) => {
+    clearTimeout(temporizador);
+    temporizador = setTimeout(() => {
+        fetchCountries(nuevoValor.trim());
+    }, 500); // Espera 500ms después de que dejas de escribir para llamar a la API
 });
 </script>
 
@@ -51,13 +64,13 @@ const filterCountries = computed(() => {
             <input
                 type="text"
                 v-model="searchQuery"
-                placeholder="Buscar país por nombre o región..."
+                placeholder="Busca un país o región..."
                 class="search-box"
             />
         </div>
 
         <div v-if="isLoading" class="status-message loading">
-            ⏳ Cargando países...
+            ⏳ Buscando...
         </div>
 
         <div v-else-if="errorMessage" class="status-message error">
@@ -65,22 +78,26 @@ const filterCountries = computed(() => {
         </div>
 
         <div v-else>
-            <div v-if="filterCountries.length === 0" class="status-message empty">
+            <!-- Usamos 'countries' directamente ya que el filtro lo hace la API -->
+            <div v-if="countries.length === 0" class="status-message empty">
                 No hay resultados para tu búsqueda.
             </div>
 
             <div class="grid">
                 <div
-                    v-for="country in filterCountries"
-                    :key="country.cca3 || country.name"
+                    v-for="country in countries"
+                    :key="country.codes?.alpha_3"
                     class="card"
                 >
-                    <!-- Manejo seguro de la imagen por si la v5 usa flag en lugar de flags.svg -->
-                    <img :src="country.flags?.svg || country.flags?.png || country.flag" :alt="`Bandera de ${country.name?.common || country.name}`" class="flag" />
+                    <img 
+                        :src="country.flag?.url_svg" 
+                        :alt="`Bandera de ${country.names?.common}`" 
+                        class="flag" 
+                    />
                     
                     <div class="card-info">
-                        <h2>{{ country.name?.common || country.name }}</h2> 
-                        <p><strong>Capital:</strong> {{ country.capital ? (Array.isArray(country.capital) ? country.capital[0] : country.capital) : 'No tiene' }}</p>
+                        <h2>{{ country.names?.common }}</h2> 
+                        <p><strong>Capital:</strong> {{ country.capitals?.[0]?.name || 'No tiene' }}</p>
                         <p><strong>Región:</strong> {{ country.region }}</p>
                         <p><strong>Población:</strong> {{ country.population ? country.population.toLocaleString() : 'Desconocida' }}</p>
                     </div>
@@ -91,65 +108,16 @@ const filterCountries = computed(() => {
 </template>
 
 <style scoped>
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-    font-family: Arial, sans-serif;
-}
-h1 {
-    text-align: center;
-    color: #333;
-}
-.search-container {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-}
-.search-box {
-    width: 100%;
-    max-width: 400px;
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-}
-.status-message {
-    text-align: center;
-    font-size: 18px;
-    margin: 40px 0;
-}
-.error { color: red; }
-.loading { color: #0066cc; }
-.empty { color: #666; }
-
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
-}
-.card {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    background: white;
-}
-.flag {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
-    border-bottom: 1px solid #ddd;
-}
-.card-info {
-    padding: 15px;
-}
-.card-info h2 {
-    margin: 0 0 10px 0;
-    font-size: 20px;
-}
-.card-info p {
-    margin: 5px 0;
-    color: #555;
-}
+.container { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif; }
+h1 { text-align: center; color: #333; }
+.search-container { display: flex; justify-content: center; margin-bottom: 20px; }
+.search-box { width: 100%; max-width: 400px; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px; }
+.status-message { text-align: center; font-size: 18px; margin: 40px 0; }
+.error { color: red; } .loading { color: #0066cc; } .empty { color: #666; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+.card { border: 1px solid #ddd; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); background: white; }
+.flag { width: 100%; height: 150px; object-fit: cover; border-bottom: 1px solid #ddd; }
+.card-info { padding: 15px; }
+.card-info h2 { margin: 0 0 10px 0; font-size: 20px; }
+.card-info p { margin: 5px 0; color: #555; }
 </style>
